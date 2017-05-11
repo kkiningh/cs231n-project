@@ -18,30 +18,23 @@ module MultiplyAccumulateCell #(
     input  [WEIGHT_BITS-1:0]        weight_in,
     input                           weight_set
 );
-    // Save the weight when the weight_set is active
-    reg [WEIGHT_BITS-1:0]       weight;
-    always @(posedge clock) begin
-        if (reset) begin
-            weight <= {WEIGHT_BITS{1'b0}};
-        end else if (weight_set) begin
-            weight <= weight_in;
-        end
-    end
-
-    // Save the result
     reg [DATA_BITS-1:0]         data;
+    reg [WEIGHT_BITS-1:0]       weight;
     reg [ACCUMULATOR_BITS-1:0]  accumulator;
     always @(posedge clock) begin
         if (reset) begin
             data        <= {DATA_BITS{1'b0}};
+            weight      <= {WEIGHT_BITS{1'b0}};
             accumulator <= {ACCUMULATOR_BITS{1'b0}};
         end else if (!mac_stall_in) begin
             data        <= data_in;
-            accumulator <= data_in * weight + accumulator_in;
+            accumulator <= accumulator_in;
+        end else if (weight_set) begin
+            weight      <= weight_in;
         end
     end
 
-    // Forward the value of the accumulator and data
+    // Calculate and forward the final value
     assign data_out        = data;
-    assign accumulator_out = accumulator;
+    assign accumulator_out = data * weight + accumulator;
 endmodule
