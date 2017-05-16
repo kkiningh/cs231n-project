@@ -1,5 +1,6 @@
 import cocotb
 
+from cocotb.result      import TestFailure
 from cocotb.clock       import Clock
 from cocotb.triggers    import RisingEdge, ClockCycles, ReadOnly
 
