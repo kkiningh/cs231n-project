@@ -26,15 +26,26 @@ module MultiplyAccumulateCell #(
             data        <= {DATA_BITS{1'b0}};
             weight      <= {WEIGHT_BITS{1'b0}};
             accumulator <= {ACCUMULATOR_BITS{1'b0}};
-        end else if (!mac_stall_in) begin
-            data        <= data_in;
-            accumulator <= accumulator_in;
-        end else if (weight_set) begin
-            weight      <= weight_in;
+        end else begin
+            if (weight_set) begin
+                weight <= weight_in;
+            end else
+
+            if (!mac_stall_in) begin
+                data        <= data_in;
+                accumulator <= accumulator_in;
+            end
         end
     end
 
     // Calculate and forward the final value
     assign data_out        = data;
     assign accumulator_out = data * weight + accumulator;
+
+`ifdef COCOTB_SIM
+    initial begin
+        $vcdpluson;
+    end
+`endif
+
 endmodule
