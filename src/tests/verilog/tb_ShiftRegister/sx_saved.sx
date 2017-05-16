@@ -1,0 +1,93 @@
+### Custom WaveView session file (version L-2016.06 build May 19, ) ###
+### saved at 22:47:22 on Mon May 15 2017 ###
+wdf 0 "/site/scv/org-seg-projects-osprey-scv-new-users-asramkum-safe1/CS231n/Project/cs231n-project/src/tests/verilog/tb_ShiftRegister/ShiftRegister.vcd" load=used 
+scalar list
+waveview_begin 1  stack  offset=0 name_b=288 mntr_b=358 name_width=273 xcur=2.7e-07 mcur=3.85e-07 vc=cur-pnl "name=waveview 1" 
+  panel_begin digital pidx=0 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 radix=bin 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/clock" disp=show 
+  panel_end
+  panel_begin digital pidx=1 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 radix=bin 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/reset" disp=show 
+  panel_end
+  panel_begin digital pidx=2 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 radix=bin 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/load" disp=show 
+  panel_end
+  panel_begin digital pidx=3 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 vecname=data_out[7-0] radix=hex bus_head=true 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][0]" disp=show 
+    line src=wdf lidx=1 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][1]" disp=show 
+    line src=wdf lidx=2 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][2]" disp=show 
+    line src=wdf lidx=3 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][3]" disp=show 
+    line src=wdf lidx=4 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][4]" disp=show 
+    line src=wdf lidx=5 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][5]" disp=show 
+    line src=wdf lidx=6 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][6]" disp=show 
+    line src=wdf lidx=7 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[7][7]" disp=show 
+    line src=wdf lidx=8 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][0]" disp=show 
+    line src=wdf lidx=9 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][1]" disp=show 
+    line src=wdf lidx=10 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][2]" disp=show 
+    line src=wdf lidx=11 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][3]" disp=show 
+    line src=wdf lidx=12 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][4]" disp=show 
+    line src=wdf lidx=13 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][5]" disp=show 
+    line src=wdf lidx=14 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][6]" disp=show 
+    line src=wdf lidx=15 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[6][7]" disp=show 
+    line src=wdf lidx=16 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][0]" disp=show 
+    line src=wdf lidx=17 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][1]" disp=show 
+    line src=wdf lidx=18 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][2]" disp=show 
+    line src=wdf lidx=19 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][3]" disp=show 
+    line src=wdf lidx=20 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][4]" disp=show 
+    line src=wdf lidx=21 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][5]" disp=show 
+    line src=wdf lidx=22 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][6]" disp=show 
+    line src=wdf lidx=23 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[5][7]" disp=show 
+    line src=wdf lidx=24 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][0]" disp=show 
+    line src=wdf lidx=25 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][1]" disp=show 
+    line src=wdf lidx=26 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][2]" disp=show 
+    line src=wdf lidx=27 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][3]" disp=show 
+    line src=wdf lidx=28 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][4]" disp=show 
+    line src=wdf lidx=29 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][5]" disp=show 
+    line src=wdf lidx=30 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][6]" disp=show 
+    line src=wdf lidx=31 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[4][7]" disp=show 
+    line src=wdf lidx=32 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][0]" disp=show 
+    line src=wdf lidx=33 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][1]" disp=show 
+    line src=wdf lidx=34 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][2]" disp=show 
+    line src=wdf lidx=35 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][3]" disp=show 
+    line src=wdf lidx=36 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][4]" disp=show 
+    line src=wdf lidx=37 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][5]" disp=show 
+    line src=wdf lidx=38 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][6]" disp=show 
+    line src=wdf lidx=39 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[3][7]" disp=show 
+    line src=wdf lidx=40 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][0]" disp=show 
+    line src=wdf lidx=41 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][1]" disp=show 
+    line src=wdf lidx=42 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][2]" disp=show 
+    line src=wdf lidx=43 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][3]" disp=show 
+    line src=wdf lidx=44 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][4]" disp=show 
+    line src=wdf lidx=45 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][5]" disp=show 
+    line src=wdf lidx=46 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][6]" disp=show 
+    line src=wdf lidx=47 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[2][7]" disp=show 
+    line src=wdf lidx=48 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][0]" disp=show 
+    line src=wdf lidx=49 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][1]" disp=show 
+    line src=wdf lidx=50 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][2]" disp=show 
+    line src=wdf lidx=51 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][3]" disp=show 
+    line src=wdf lidx=52 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][4]" disp=show 
+    line src=wdf lidx=53 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][5]" disp=show 
+    line src=wdf lidx=54 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][6]" disp=show 
+    line src=wdf lidx=55 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[1][7]" disp=show 
+    line src=wdf lidx=56 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][0]" disp=show 
+    line src=wdf lidx=57 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][1]" disp=show 
+    line src=wdf lidx=58 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][2]" disp=show 
+    line src=wdf lidx=59 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][3]" disp=show 
+    line src=wdf lidx=60 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][4]" disp=show 
+    line src=wdf lidx=61 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][5]" disp=show 
+    line src=wdf lidx=62 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][6]" disp=show 
+    line src=wdf lidx=63 fidx=0 "delim=/" sigtype=20 "name=tb_ShiftRegister/data_out[0][7]" disp=show 
+  panel_end
+  panel_begin digital pidx=4 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 vecname=data_in[7][9][7:0] radix=dec 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/DUT/data_in[7][9][7:0]" disp=show 
+  panel_end
+  panel_begin digital pidx=5 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 vecname=mem[7][9][7:0] radix=hex 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/DUT/mem[7][9][7:0]" disp=show 
+  panel_end
+  panel_begin digital pidx=6 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 vecname=data_in[7][9][7:0] radix=hex 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/data_in[7][9][7:0]" disp=show 
+  panel_end
+  panel_begin digital pidx=7 spath=name+file marker=on xlabel=sec xmin=3.74711226476314e-07 xmax=6.02569759896171e-07 radix=bin 
+    line src=wdf lidx=0 fidx=0 "delim=/" sigtype=9 "name=tb_ShiftRegister/shift" disp=show 
+  panel_end
+waveview_end

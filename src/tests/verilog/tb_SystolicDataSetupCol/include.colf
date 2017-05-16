@@ -1,0 +1,2 @@
+../rtl/SystolicDataSetupCol.v
+./tb_SystolicDataSetupCol.v

@@ -1,0 +1,10 @@
+//
+// File created by:  ncverilog
+// Do not modify this file
+//
++nclicq
++sv
++nc64bit
++access+r
+-f
+include.f

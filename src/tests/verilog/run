@@ -1,0 +1,1 @@
+vcs -full64 -sverilog -f include.f -top MultiplyAccumulateMatrix

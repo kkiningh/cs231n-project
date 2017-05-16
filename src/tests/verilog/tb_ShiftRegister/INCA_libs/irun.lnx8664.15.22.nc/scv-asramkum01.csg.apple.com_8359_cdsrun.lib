@@ -1,0 +1,2 @@
+SOFTINCLUDE /org/seg/tools/eda/cadence/incisive/15.22.016/tools/inca/files/cds.lib
+define worklib ../worklib

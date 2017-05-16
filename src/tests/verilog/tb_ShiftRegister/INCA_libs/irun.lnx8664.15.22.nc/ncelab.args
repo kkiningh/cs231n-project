@@ -1,0 +1,23 @@
+//
+// File created by:  ncverilog
+// Do not modify this file
+//
++nclicq
++sv
++nc64bit
++access+r
+-noshowtop
+-LICQUEUE
+-ACCESS
++r
+-MESSAGES
+-XLMODE
+./INCA_libs/irun.lnx8664.15.22.nc
+-RUNMODE
+-CDSLIB
+./INCA_libs/irun.lnx8664.15.22.nc/cds.lib
+-HDLVAR
+./INCA_libs/irun.lnx8664.15.22.nc/hdl.var
+-WORK
+worklib
+-HASXLMODE
