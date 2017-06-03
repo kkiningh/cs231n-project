@@ -1,7 +1,7 @@
 puts "Setting up common variables\n"
 
 # Name of the top-level design
-set DESIGN_NAME             "Top"
+set DESIGN_NAME             "SystolicArray"
 
 # Absolute path prefix for design data.
 set DESIGN_REF_DATA_PATH    ""

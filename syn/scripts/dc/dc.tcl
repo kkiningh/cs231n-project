@@ -94,10 +94,9 @@ define_design_lib WORK -path ./WORK
 
 
 # Modify the following autoread defaults if desired
-
-#set_app_var hdlin_autoread_verilog_extensions       ".v";
-#set_app_var hdlin_autoread_sverilog_extensions      ".sv .sverilog";
-#set_app_var hdlin_autoread_vhdl_extensions          ".vhd .vhdl";
+set_app_var hdlin_autoread_verilog_extensions       ".v";
+set_app_var hdlin_autoread_sverilog_extensions      ".sv .sverilog";
+set_app_var hdlin_autoread_vhdl_extensions          ".vhd .vhdl";
 
 # Note: When autoread is used ${RTL_SOURCE_FILES} can include a list of
 #       both directories and files.
@@ -115,12 +114,13 @@ define_design_lib WORK -path ./WORK
 #       https://solvnet.synopsys.com/retrieve/039318.html
 
 
-analyze -autoread \
-        -rebuild \
-        -recursive \
-        -top ${DESIGN_NAME} \
-        -output_script ${RESULTS_DIR}/${DCRM_AUTOREAD_RTL_SCRIPT} \
-        ${RTL_SOURCE_FILES}
+analyze \
+    -autoread \
+    -rebuild \
+    -recursive \
+    -top ${DESIGN_NAME} \
+    -output_script ${RESULTS_DIR}/${DCRM_AUTOREAD_RTL_SCRIPT} \
+    ${RTL_SOURCE_FILES}
 
 elaborate ${DESIGN_NAME}
 
