@@ -7,11 +7,11 @@ module MultiplyAccumulateMatrix #(
     input clock,
     input reset,
 
-    input [DATA_BITS-1:0] data_in [0:255],
+    input [DATA_BITS-1:0] data_in [0:MATRIX_SIZE-1],
 
     // Global inputs
     input                   mac_stall_in,
-    input [WEIGHT_BITS-1:0] weight_in,
+    input [WEIGHT_BITS-1:0] weight_in [0:MATRIX_SIZE-1],
     input                   weight_set
 );
     genvar i, j;
