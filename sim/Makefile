@@ -1,19 +1,35 @@
 RTL_DIR := ../src/rtl
+RTL_TB  := $(RTL_DIR)/TopTest.sv
+RTL_SRC := $(RTL_DIR)/Top.sv
 
-RTL_SRC := $(RTL_DIR)/Top.sv $(RTL_DIR)/TopTest.sv
-TOP     := Top
+### Naming setup
+TOP ?= $(basename $(basename $(notdir RTL_TB)))
+TB  ?= $(basename RTL_TB)
 
+### Setup for VCS
 # Need to add linker flags if they're not already set
-VCS_FLAGS ?= "-LDFLAGS -Wl,--no-as-needed"
+VCS			?= vcs -full64 -LDFLAGS -Wl,--no-as-needed
+VCS_OPTIONS += -debug_access
+VCS_OPTIONS += -q -notice
+VCS_OPTIONS += -j8
+VCS_OPTIONS += -sverilog
 
-$(TOP).test.vcd $(TOP).test.runlog: $(TOP).simv
-	./$(TOP).simv -vcd $(TOP).test.vcd -l $(TOP).test.runlog
+VCS			:= $(strip $(VCS))
+VCS_OPTIONS := $(strip $(VCS_OPTIONS))
 
-$(TOP).simv: $(RTL_SRC)
-	vcs -full64 -q $(RTL_SRC) -sverilog -o $(TOP).simv $(VCS_FLAGS) -debug_access
+### Acutal build rules
+build/$(TOP).$(TB).vcd: build/$(TOP).$(TB).simv
+	@mkdir -p $(dir $@)
+	$^ +vpdfile+$@
+
+build/$(TOP).$(TB).simv: $(RTL_TB) $(RTL_SRC)
+	@mkdir -p $(dir $@)
+	$(VCS) $(VCS_OPTIONS) \
+		-o $@ $^ \
+		-k $@-ucli.key \
+		-Mdir=$@-csrc \
+		-top $(TOP)
 
 .PHONY: clean
 clean:
-	rm -rf $(TOP).simv $(TOP).simv.daidir
-	rm -f $(TOP).test.vcd $(TOP).test.runlog
-	rm -f ucli.key
+	rm -r build
