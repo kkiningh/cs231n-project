@@ -25,7 +25,7 @@ generate
 			aFifo #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
     				(.Data_out(Data_out[i]), 
      				.Empty_out(Empty_out[i]),
-     				.ReadEn_in(REN & valid),
+     				.ReadEn_in(valid),
      				.RClk(CLK),        
      				.Data_in(Data_in[i]),  
      				.Full_out(Full_out[i]),
@@ -36,7 +36,7 @@ generate
 			aFifo  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
     				(.Data_out(Data_out[i]), 
      				.Empty_out(Empty_out[i]),
-     				.ReadEn_in(REN & valid_reg[i+1]),
+     				.ReadEn_in(valid_reg[i+1]),
      				.RClk(CLK),        
      				.Data_in(Data_in[i]),  
      				.Full_out(Full_out[i]),
