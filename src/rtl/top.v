@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module Top #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) (CLK, RESET,data_in_dram,DRAM,valid,REN,WEN,Full_out,Empty_out,w_in,stall,set_w);
+module Top #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) (CLK, RESET_sram,RESET,data_in_dram,DRAM,valid,REN,WEN,Full_out,Empty_out,w_in,stall,set_w);
 
 
 wire [WIDTH-1:0] wire_inputtoarray [DEPTH-1:0];
@@ -9,6 +9,7 @@ wire [WIDTH-1:0] wire_accqtomux [DEPTH-1:0];
 wire [WIDTH-1:0] wire_muxdatatoinput [DEPTH-1:0];
 input wire CLK;
 input wire RESET;
+input wire RESET_sram;
 input wire [WIDTH-1:0] data_in_dram [DEPTH-1:0];
 input wire DRAM;
 input valid;
@@ -20,7 +21,7 @@ input [WIDTH-1:0] w_in [0:DEPTH-1];
 input stall;
 input set_w;
 
-MatrixInput_sram #(.DEPTH(DEPTH), .ADDRESS_WIDTH(ADDRESS_WIDTH),.WIDTH(WIDTH)) MI_SRAM ( .Data_in(wire_muxdatatoinput),.Data_out(wire_inputtoarray), .valid(valid), .CLK(CLK), .WEN(WEN), .REN(REN), .RESET(RESET), .Full_out(Full_out), .Empty_out(Empty_out));
+MatrixInput_sram #(.DEPTH(DEPTH), .ADDRESS_WIDTH(ADDRESS_WIDTH),.WIDTH(WIDTH)) MI_SRAM ( .Data_in(wire_muxdatatoinput),.Data_out(wire_inputtoarray), .valid(valid), .CLK(CLK), .WEN(WEN), .REN(REN), .RESET(RESET_sram), .Full_out(Full_out), .Empty_out(Empty_out));
 
 SystolicArray #(.WIDTH(DEPTH),.HEIGHT(DEPTH),.D_BITS(WIDTH),.W_BITS(WIDTH),.A_BITS(WIDTH)) INST_SYSARRAY (.clock(CLK),.reset(RESET),.set_w,.stall,.d_in(wire_inputtoarray),.w_in(w_in) ,.a_out(wire_arraytoaccq));
 
@@ -152,6 +153,7 @@ module MatrixInput_sram #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) ( 
 
 input wire [WIDTH-1:0] Data_in [DEPTH-1:0];
 output wire [WIDTH-1:0] Data_out [DEPTH-1:0];
+wire [WIDTH-1:0] Data_out_t [DEPTH-1:0];
 output wire [DEPTH-1:0] Full_out;
 output wire [DEPTH-1:0] Empty_out;
 input wire valid;
@@ -162,8 +164,12 @@ input wire RESET;
 
 reg [DEPTH-1:0] valid_reg;
 
-always @(posedge CLK) begin
-	valid_reg [DEPTH-1:0] <= {valid,valid_reg[DEPTH-1:1]};
+always @(posedge CLK or posedge RESET) begin
+	if (RESET) begin
+		valid_reg <= {256{1'b0}};
+	end else begin
+		valid_reg [DEPTH-1:0] <= {valid,valid_reg[DEPTH-1:1]};
+	end
 end
 
 
@@ -173,7 +179,7 @@ generate
 	for (i=DEPTH-1; i >=0; i=i-1) begin : ROWFIFO
 		if (i==DEPTH-1) begin : check
 			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
-    				(.Data_out(Data_out[i]), 
+    				(.Data_out(Data_out_t[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(valid),
      				.RClk(CLK),        
@@ -182,9 +188,10 @@ generate
      				.WriteEn_in(WEN),
      				.WClk(CLK),
          			.Clear_in(RESET));
+			assign Data_out[i] = Data_out_t[i] & {8{valid}};
 		end else begin : NonZero
 			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
-    				(.Data_out(Data_out[i]), 
+    				(.Data_out(Data_out_t[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(valid_reg[i+1]),
      				.RClk(CLK),        
@@ -193,6 +200,7 @@ generate
      				.WriteEn_in(WEN),
      				.WClk(CLK),
          			.Clear_in(RESET));
+			assign Data_out[i] = Data_out_t[i] & {8{valid_reg[i+1]}}; 
 		end
 	end
 endgenerate
@@ -252,7 +260,7 @@ module Mac #(
     reg [W_BITS-1:0] w;
     always @(posedge clock) begin
         if (reset) begin
-            w     <= {W_BITS{1'b0}};
+            //w     <= {W_BITS{1'b0}};
             a_out <= {A_BITS{1'b0}};
             d_out <= {D_BITS{1'b0}};
         end else if (!stall) begin
@@ -588,12 +596,12 @@ module aFifo_256x8
 				    .A2(pNextWordToWrite[6:0]),
 				    .CE1(RClk & read_LsbEn),
 				    .CE2(WClk & write_LsbEn),
-				    .WEB1(ReadEn_in),
-				    .WEB2(~WriteEn_in),
+				    .WEB1(NextReadAddressEn),
+				    .WEB2(~NextWriteAddressEn),
 				    .OEB1(1'b0),
 				    .OEB2(1'b1),
-				    .CSB1(~ReadEn_in),
-				    .CSB2(~WriteEn_in),
+				    .CSB1(~NextReadAddressEn),
+				    .CSB2(~NextWriteAddressEn),
 				    .I1(8'h00),
 				    .I2(Data_in),
 				    .O1(Lsb_Data_out),
@@ -603,12 +611,12 @@ module aFifo_256x8
                                     .A2(pNextWordToWrite[6:0]),
                                     .CE1(RClk & read_MsbEn),
                                     .CE2(WClk & write_MsbEn),
-                                    .WEB1(ReadEn_in),
-                                    .WEB2(~WriteEn_in),
-                                    .OEB1(1'b1),
-                                    .OEB2(1'b0),
-                                    .CSB1(~ReadEn_in),
-                                    .CSB2(~WriteEn_in),
+                                    .WEB1(NextReadAddressEn),
+                                    .WEB2(~NextWriteAddressEn),
+                                    .OEB1(1'b0),
+                                    .OEB2(1'b1),
+                                    .CSB1(~NextReadAddressEn),
+                                    .CSB2(~NextWriteAddressEn),
                                     .I1(8'h00),
                                     .I2(Data_in),
                                     .O1(Msb_Data_out),
