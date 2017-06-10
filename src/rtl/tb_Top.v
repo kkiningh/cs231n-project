@@ -24,13 +24,14 @@ reg DRAM;
 reg valid;
 reg WEN;
 reg REN;
+reg REN_q;
 wire [DEPTH-1:0] Full_out;
 wire [DEPTH-1:0] Empty_out;
 reg [WIDTH-1:0] w_in [0:DEPTH-1];
 reg stall;
 reg set_w;
 
-Top ITop (.CLK(CLK), .RESET_sram(RESET_sram),.RESET(RESET),.data_in_dram(data_in_dram),.DRAM(DRAM),.valid(valid),.REN(REN),.WEN(WEN),.Full_out(Full_out),.Empty_out(Empty_out),.w_in(w_in),.stall(stall),.set_w(set_w));
+Top ITop (.CLK(CLK), .RESET_sram(RESET_sram),.RESET(RESET),.data_in_dram(data_in_dram),.DRAM(DRAM),.valid(valid),.REN(REN),.WEN(WEN),.Full_out(Full_out),.Empty_out(Empty_out),.w_in(w_in),.stall(stall),.set_w(set_w),.REN_q(REN_q));
 
 always begin
         #half_period
@@ -44,6 +45,7 @@ initial begin
 	DRAM=1;
 	valid =0;
 	REN =0;
+	REN_q =0;
 	WEN=0;
 	stall=0;
 	set_w=0;
@@ -51,8 +53,9 @@ initial begin
 			w_in[j] = 8'h00;
 			data_in_dram[j] = 8'h00;			
 		end
-	$dumpfile("test.vcd") ;
-        $dumpvars(0,tb_Top);
+	 $fsdbDumpfile("test.fsdb");
+     	 $fsdbDumpvars(0,tb_Top);
+		$fsdbDumpMDA(0,tb_Top);
 	/*for (integer idx = 0; idx < 256; idx = idx + 1) begin
       		$dumpvars(0, data_in_dram[idx]);
 		$dumpvars(0, w_in[idx]);
@@ -61,7 +64,10 @@ initial begin
 	loadInputAndWeights();
 	#20
 	multiply();
-	#20 $finish;
+	#50
+	REN_q = 1'b1;
+	#750 REN_q =1'b0;
+	#200 $finish;
 end
 
 task randominputs;
@@ -143,7 +149,7 @@ repeat (256)	begin
 	@(posedge CLK) valid <=1'b1;
 end
 
-repeat (256)	begin
+repeat (768)	begin
 	@(posedge CLK) valid <= 1'b0;
 end
 

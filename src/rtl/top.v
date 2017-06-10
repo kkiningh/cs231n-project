@@ -1,10 +1,11 @@
 `timescale 1ns/1ps
 
-module Top #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) (CLK, RESET_sram,RESET,data_in_dram,DRAM,valid,REN,WEN,Full_out,Empty_out,w_in,stall,set_w);
+module Top #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) (CLK, RESET_sram,RESET,data_in_dram,DRAM,valid,REN,WEN,Full_out,Empty_out,w_in,stall,set_w,REN_q);
 
 
 wire [WIDTH-1:0] wire_inputtoarray [DEPTH-1:0];
-wire [WIDTH-1:0] wire_arraytoaccq [DEPTH-1:0];
+wire [31:0] wire_arraytorelu [DEPTH-1:0];
+wire [WIDTH-1:0] wire_relutoaccq [DEPTH-1:0];
 wire [WIDTH-1:0] wire_accqtomux [DEPTH-1:0];
 wire [WIDTH-1:0] wire_muxdatatoinput [DEPTH-1:0];
 input wire CLK;
@@ -15,22 +16,81 @@ input wire DRAM;
 input valid;
 input WEN;
 input REN;
+input REN_q;
 input [DEPTH-1:0] Full_out;
 input [DEPTH-1:0] Empty_out;
+wire [DEPTH-1:0] Full_out_q;
+wire[DEPTH-1:0] Empty_out_q;
 input [WIDTH-1:0] w_in [0:DEPTH-1];
 input stall;
 input set_w;
 
+reg valid_q;
+reg start ;
+reg [9:0] count;
+
 MatrixInput_sram #(.DEPTH(DEPTH), .ADDRESS_WIDTH(ADDRESS_WIDTH),.WIDTH(WIDTH)) MI_SRAM ( .Data_in(wire_muxdatatoinput),.Data_out(wire_inputtoarray), .valid(valid), .CLK(CLK), .WEN(WEN), .REN(REN), .RESET(RESET_sram), .Full_out(Full_out), .Empty_out(Empty_out));
 
-SystolicArray #(.WIDTH(DEPTH),.HEIGHT(DEPTH),.D_BITS(WIDTH),.W_BITS(WIDTH),.A_BITS(WIDTH)) INST_SYSARRAY (.clock(CLK),.reset(RESET),.set_w,.stall,.d_in(wire_inputtoarray),.w_in(w_in) ,.a_out(wire_arraytoaccq));
+SystolicArray #(.WIDTH(DEPTH),.HEIGHT(DEPTH),.D_BITS(WIDTH),.W_BITS(WIDTH),.A_BITS(32)) INST_SYSARRAY (.clock(CLK),.reset(RESET),.set_w,.stall,.d_in(wire_inputtoarray),.w_in(w_in) ,.a_out(wire_arraytorelu));
 
-shiftreg #(.DEPTH(DEPTH),.WIDTH(WIDTH)) INST_ACCREG (.data_in(wire_arraytoaccq),.data_out(wire_accqtomux),.CLK(CLK),.RESET(RESET));
+ReluQuant INST_RELUQUANT (.data_in(wire_arraytorelu),.data_out(wire_relutoaccq)); 
+
+//shiftreg #(.DEPTH(DEPTH),.WIDTH(WIDTH)) INST_ACCREG (.data_in(wire_arraytoaccq),.data_out(wire_accqtomux),.CLK(CLK),.RESET(RESET));
+
+AccQueue_sram #(.DEPTH(DEPTH),.ADDRESS_WIDTH(ADDRESS_WIDTH),.WIDTH(WIDTH)) INST_ACCQ (.Data_in(wire_relutoaccq), .Data_out(wire_accqtomux), .valid(valid_q), .CLK(CLK), .REN(REN_q), .RESET(RESET_sram), .Full_out(Full_out_q), .Empty_out(Empty_out_q));
 
 mux_DRAMorLocal #(.DEPTH(DEPTH),.WIDTH(WIDTH)) INST_DATAMUX (.data_in_dram(data_in_dram), .data_in_local(wire_accqtomux),.data_from_DRAM(DRAM),.data_out(wire_muxdatatoinput)) ;
 
+
+always @(posedge RESET_sram) begin
+	start <= 1'b0;
+	count <= 10'b0000000000;
+	valid_q <= 1'b0;
+end
+
+always @(posedge valid) begin
+	start <= 1'b1;
+	count <= count + 1;
+end
+
+always @(posedge CLK) begin
+	if (start) begin
+		count <= count + 1;
+	end
+end
+
+always @(count) begin
+	if (count == 256) begin
+		valid_q <= 1'b1;
+	end else if ( count == 512) begin
+		valid_q <= 1'b0;
+		count <= 10'b0000000000;
+		start <= 1'b0;
+	end
+end
+
 endmodule
 
+module ReluQuant #(parameter INPUT = 32, OUTPUT =8, DEPTH = 256) (data_in,data_out);
+
+input  [INPUT-1:0] data_in [DEPTH-1:0];
+output  reg [OUTPUT-1:0] data_out [DEPTH-1:0];
+
+reg [OUTPUT-1:0] temp [DEPTH-1:0];
+
+always @(data_in) begin
+	for (integer i=0; i< 256;i++) begin
+		temp[i] = data_in[i] >> 2;
+	end
+end 
+
+always @(temp) begin
+	for (integer i=0; i< 256;i++) begin
+		data_out[i] = (temp[i] & 8'h80)? 0:temp[i];
+	end
+end
+
+endmodule
 
 //==========================================
 // Function : Code Gray counter.
@@ -114,41 +174,67 @@ generate
 	end
 endgenerate
 
-
-/*AUTOPERL
-        for ($e=7; $e>=0; $e--) {
-		$t = $e;
-		if ($e==7) {
-			print "aFifo #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U$e\n";
-			print "\t(.Data_out(Data_out[$e]),";
-			print ".Empty_out(),";
-     			print ".ReadEn_in(REN & valid),\n";
-     			print "\t.RClk(CLK),";        
-     			print ".Data_in(Data_in[$e]),";  
-     			print ".Full_out(),\n";
-     			print "\t.WriteEn_in(WEN),";
-     			print ".WClk(CLK),";
-         		print ".Clear_in(RESET));\n";
-			print "\n";
-		} else {
-			print "aFifo #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U$e\n";
-			print "\t(.Data_out(Data_out[$e]),";
-			print ".Empty_out(),";
-     			print ".ReadEn_in(REN & valid_reg[$t]),\n";
-     			print "\t.RClk(CLK),";        
-     			print ".Data_in(Data_in[$e]),";  
-     			print ".Full_out(),\n";
-     			print "\t.WriteEn_in(WEN),";
-     			print ".WClk(CLK),";
-         		print ".Clear_in(RESET));\n";
-			print "\n";
-		}
-        }
-*/
-
 endmodule
 
 //EndModule
+
+module AccQueue_sram #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) ( Data_in, Data_out, valid, CLK, REN, RESET, Full_out, Empty_out);
+
+input wire [WIDTH-1:0] Data_in [DEPTH-1:0];
+output wire [WIDTH-1:0] Data_out [DEPTH-1:0];
+//wire [WIDTH-1:0] Data_out_t [DEPTH-1:0];
+output wire [DEPTH-1:0] Full_out;
+output wire [DEPTH-1:0] Empty_out;
+input wire valid;
+input wire CLK;
+input wire REN;
+input wire RESET;
+
+reg [DEPTH-1:0] valid_reg;
+
+always @(posedge CLK or posedge RESET) begin
+	if (RESET) begin
+		valid_reg <= {256{1'b0}};
+	end else begin
+		valid_reg [DEPTH-1:0] <= {valid,valid_reg[DEPTH-1:1]};
+	end
+end
+
+
+genvar i;
+
+generate
+	for (i=DEPTH-1; i >=0; i=i-1) begin : ROWFIFO
+		if (i==DEPTH-1) begin : check
+			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+    				(.Data_out(Data_out[i]), 
+     				.Empty_out(Empty_out[i]),
+     				.ReadEn_in(REN),
+     				.RClk(CLK),        
+     				.Data_in(Data_in[i]),  
+     				.Full_out(Full_out[i]),
+     				.WriteEn_in(valid),
+     				.WClk(CLK),
+         			.Clear_in(RESET));
+			//assign Data_out[i] = Data_out_t[i] & {8{valid}};
+		end else begin : NonZero
+			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+    				(.Data_out(Data_out[i]), 
+     				.Empty_out(Empty_out[i]),
+     				.ReadEn_in(REN),
+     				.RClk(CLK),        
+     				.Data_in(Data_in[i]),  
+     				.Full_out(Full_out[i]),
+     				.WriteEn_in(valid_reg[i+1]),
+     				.WClk(CLK),
+         			.Clear_in(RESET));
+			//assign Data_out[i] = Data_out_t[i] & {8{valid_reg[i+1]}}; 
+		end
+	end
+endgenerate
+
+endmodule
+
 module MatrixInput_sram #(parameter DEPTH = 256, ADDRESS_WIDTH =8, WIDTH = 8) ( Data_in, Data_out, valid, CLK, WEN, REN, RESET, Full_out, Empty_out);
 
 input wire [WIDTH-1:0] Data_in [DEPTH-1:0];
@@ -205,37 +291,6 @@ generate
 	end
 endgenerate
 
-
-/*AUTOPERL
-        for ($e=7; $e>=0; $e--) {
-		$t = $e;
-		if ($e==7) {
-			print "aFifo #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U$e\n";
-			print "\t(.Data_out(Data_out[$e]),";
-			print ".Empty_out(),";
-     			print ".ReadEn_in(REN & valid),\n";
-     			print "\t.RClk(CLK),";        
-     			print ".Data_in(Data_in[$e]),";  
-     			print ".Full_out(),\n";
-     			print "\t.WriteEn_in(WEN),";
-     			print ".WClk(CLK),";
-         		print ".Clear_in(RESET));\n";
-			print "\n";
-		} else {
-			print "aFifo #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U$e\n";
-			print "\t(.Data_out(Data_out[$e]),";
-			print ".Empty_out(),";
-     			print ".ReadEn_in(REN & valid_reg[$t]),\n";
-     			print "\t.RClk(CLK),";        
-     			print ".Data_in(Data_in[$e]),";  
-     			print ".Full_out(),\n";
-     			print "\t.WriteEn_in(WEN),";
-     			print ".WClk(CLK),";
-         		print ".Clear_in(RESET));\n";
-			print "\n";
-		}
-        }
-*/
 
 endmodule
 
