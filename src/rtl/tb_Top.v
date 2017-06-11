@@ -30,6 +30,7 @@ wire [DEPTH-1:0] Empty_out;
 reg [WIDTH-1:0] w_in [0:DEPTH-1];
 reg stall;
 reg set_w;
+reg [WIDTH-1:0] temp ;
 
 Top ITop (.CLK(CLK), .RESET_sram(RESET_sram),.RESET(RESET),.data_in_dram(data_in_dram),.DRAM(DRAM),.valid(valid),.REN(REN),.WEN(WEN),.Full_out(Full_out),.Empty_out(Empty_out),.w_in(w_in),.stall(stall),.set_w(set_w),.REN_q(REN_q));
 
@@ -54,13 +55,14 @@ initial begin
 			data_in_dram[j] = 8'h00;			
 		end
 	 $fsdbDumpfile("test.fsdb");
-     	 $fsdbDumpvars(0,tb_Top);
-		$fsdbDumpMDA(0,tb_Top);
+     	 $fsdbDumpvars(1,Top);
+		$fsdbDumpMDA(1,Top);
 	/*for (integer idx = 0; idx < 256; idx = idx + 1) begin
       		$dumpvars(0, data_in_dram[idx]);
 		$dumpvars(0, w_in[idx]);
     	end*/
-	randominputs();
+	//randominputs();
+	TFinputs();
 	loadInputAndWeights();
 	#20
 	multiply();
@@ -73,10 +75,40 @@ end
 task randominputs;
 for (integer i=0;i<256;i++) begin
 		for(integer j=0;j<256;j++) begin
-			A[i][j] = $urandom_range(15,0);
-			B[i][j] = $urandom_range(15,0);			
+			#0 A[i][j] = $urandom_range(255,0);
+			#0 B[i][j] = $urandom_range(255,0);			
 		end
 	end
+
+	for (integer i=0;i<256;i++) begin
+		for(integer j=0;j<256;j++) begin
+			C[i][j] = 0;
+			for (integer k=0;k<256;k++) begin
+				#0 C[i][j] = C[i][j]+ (A[i][k]*B[k][j]);
+			end			
+		end
+	end
+endtask
+
+task TFinputs;
+	integer In_File_ID,In_A,W_File_ID,W_B;
+	In_File_ID = $fopen("values.raw/features_layer9_fire_squeeze_Conv2D_eightbit_quantized_conv/1/lhs_169_256.trunc", "rb");
+	//In_A = $fread(A, In_File_ID);
+	W_File_ID = $fopen("values.raw/features_layer9_fire_squeeze_Conv2D_eightbit_quantized_conv/1/rhs_256_48.trunc", "rb");
+	//W_B = $fread(B, W_File_ID);
+
+
+	for (integer i=0;i<256;i++) begin
+		for(integer j=0;j<256;j++) begin
+			$fread(temp,In_File_ID);
+			A[i][j] = temp ;
+			$fread(temp,W_File_ID);
+			B[i][j] = temp ;
+		end
+	end
+	$fclose(In_File_ID);
+	$fclose(W_File_ID);
+
 
 	for (integer i=0;i<256;i++) begin
 		for(integer j=0;j<256;j++) begin

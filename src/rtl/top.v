@@ -80,13 +80,14 @@ reg [OUTPUT-1:0] temp [DEPTH-1:0];
 
 always @(data_in) begin
 	for (integer i=0; i< 256;i++) begin
-		temp[i] = data_in[i] >> 2;
+		temp[i] = data_in[i] >> 12;
+		//temp[i] = data_in[i][6:0];
 	end
 end 
 
 always @(temp) begin
 	for (integer i=0; i< 256;i++) begin
-		data_out[i] = (temp[i] & 8'h80)? 0:temp[i];
+		data_out[i] =((temp[i] & 8'h40)|(temp[i] & 8'h80))? 0:temp[i];
 	end
 end
 
@@ -356,7 +357,7 @@ module SystolicArray #(
 
             // Special case first row
             if (i == 0) begin : RowEdge
-                assign a_in_row = set_w ? w_in[i] : {A_BITS{1'b0}};
+                assign a_in_row = set_w ? w_in[j] : {A_BITS{1'b0}};
             end else begin : RowNonEdge
                 assign a_in_row = Row[i-1].Column[j].a_out_row;
             end
