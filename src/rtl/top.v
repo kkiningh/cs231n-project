@@ -33,7 +33,7 @@ MatrixInput_sram #(.DEPTH(DEPTH), .ADDRESS_WIDTH(ADDRESS_WIDTH),.WIDTH(WIDTH)) M
 
 SystolicArray #(.WIDTH(DEPTH),.HEIGHT(DEPTH),.D_BITS(WIDTH),.W_BITS(WIDTH),.A_BITS(32)) INST_SYSARRAY (.clock(CLK),.reset(RESET),.set_w,.stall,.d_in(wire_inputtoarray),.w_in(w_in) ,.a_out(wire_arraytorelu));
 
-ReluQuant INST_RELUQUANT (.data_in(wire_arraytorelu),.data_out(wire_relutoaccq)); 
+ReluQuant #(.INPUT(32), .OUTPUT(WIDTH), .DEPTH(DEPTH)) INST_RELUQUANT (.data_in(wire_arraytorelu),.data_out(wire_relutoaccq)); 
 
 //shiftreg #(.DEPTH(DEPTH),.WIDTH(WIDTH)) INST_ACCREG (.data_in(wire_arraytoaccq),.data_out(wire_accqtomux),.CLK(CLK),.RESET(RESET));
 
@@ -60,9 +60,9 @@ always @(posedge CLK) begin
 end
 
 always @(count) begin
-	if (count == 256) begin
+	if (count == DEPTH) begin
 		valid_q <= 1'b1;
-	end else if ( count == 512) begin
+	end else if ( count == (2*DEPTH)) begin
 		valid_q <= 1'b0;
 		count <= 10'b0000000000;
 		start <= 1'b0;
@@ -79,14 +79,22 @@ output  reg [OUTPUT-1:0] data_out [DEPTH-1:0];
 reg [OUTPUT-1:0] temp [DEPTH-1:0];
 
 always @(data_in) begin
-	for (integer i=0; i< 256;i++) begin
-		temp[i] = data_in[i] >> 12;
+	for (integer i=0; i< DEPTH;i++) begin
+		
+		if (DEPTH == 256) begin
+			temp[i] = data_in[i] >> 12;
+		end else if (DEPTH == 32) begin
+			temp[i] = data_in[i] >> 8;
+		end
+		else begin
+			temp[i] = data_in[i] >> 12;
+		end 
 		//temp[i] = data_in[i][6:0];
 	end
 end 
 
 always @(temp) begin
-	for (integer i=0; i< 256;i++) begin
+	for (integer i=0; i< DEPTH;i++) begin
 		data_out[i] =((temp[i] & 8'h40)|(temp[i] & 8'h80))? 0:temp[i];
 	end
 end
@@ -207,7 +215,7 @@ genvar i;
 generate
 	for (i=DEPTH-1; i >=0; i=i-1) begin : ROWFIFO
 		if (i==DEPTH-1) begin : check
-			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(8)) U
     				(.Data_out(Data_out[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(REN),
@@ -219,7 +227,7 @@ generate
          			.Clear_in(RESET));
 			//assign Data_out[i] = Data_out_t[i] & {8{valid}};
 		end else begin : NonZero
-			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(8)) U
     				(.Data_out(Data_out[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(REN),
@@ -265,7 +273,7 @@ genvar i;
 generate
 	for (i=DEPTH-1; i >=0; i=i-1) begin : ROWFIFO
 		if (i==DEPTH-1) begin : check
-			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+			aFifo_256x8 #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(8)) U
     				(.Data_out(Data_out_t[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(valid),
@@ -277,7 +285,7 @@ generate
          			.Clear_in(RESET));
 			assign Data_out[i] = Data_out_t[i] & {8{valid}};
 		end else begin : NonZero
-			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH)) U
+			aFifo_256x8  #(.DATA_WIDTH(WIDTH),.ADDRESS_WIDTH(8)) U
     				(.Data_out(Data_out_t[i]), 
      				.Empty_out(Empty_out[i]),
      				.ReadEn_in(valid_reg[i+1]),
